@@ -465,7 +465,12 @@ function generarInformeMensual() {
         'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
     ];
 
-    const datosInforme = meses.map(() => ({ cantidad: 0, monto: 0 }));
+    const datosInforme = meses.map(() => ({ 
+    cantidad: 0, 
+    monto: 0,
+    ganancia: 0
+}));
+
 
     const usuario = localStorage.getItem("usuarioActivo");
 
@@ -482,10 +487,16 @@ function generarInformeMensual() {
 
                     if (añoPago === añoSeleccionado) {
 
-                        const totalCuota = p.montoCuotaBase;
+                       const totalCuota = p.montoCuotaBase;
 
-                        datosInforme[mesPago].cantidad++;
-                        datosInforme[mesPago].monto += totalCuota;
+// Cálculo de ganancia por cuota
+const costoRealCuota = p.montoOriginal / p.cuotas.length;
+const gananciaCuota = totalCuota - costoRealCuota;
+
+datosInforme[mesPago].cantidad++;
+datosInforme[mesPago].monto += totalCuota;
+datosInforme[mesPago].ganancia += gananciaCuota;
+
                     }
                 }
 
@@ -507,20 +518,26 @@ function generarInformeMensual() {
                 <div class="report-month-card">
                     <h4>${meses[i]}</h4>
                     <p>Cuotas pagadas: ${m.cantidad}</p>
-                    <p>Monto total: $${m.monto.toFixed(2)}</p>
+                  <p>Monto total: $${m.monto.toFixed(2)}</p>
+<p>Ganancia: $${m.ganancia.toFixed(2)}</p>
+
                 </div>
             `;
         }
     });
 
-    const totalCuotas = datosInforme.reduce((s,m)=>s+m.cantidad,0);
-    const totalMonto = datosInforme.reduce((s,m)=>s+m.monto,0);
+  const totalCuotas = datosInforme.reduce((s,m)=>s+m.cantidad,0);
+const totalMonto = datosInforme.reduce((s,m)=>s+m.monto,0);
+const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
+
 
     reportData.innerHTML += `
         <div class="report-month-card total">
             <h4>TOTAL ${añoSeleccionado}</h4>
             <p>Total cuotas: ${totalCuotas}</p>
             <p>Total monto: $${totalMonto.toFixed(2)}</p>
+<p>Total ganancia: $${totalGanancia.toFixed(2)}</p>
+
         </div>
     `;
 }
