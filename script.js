@@ -1,19 +1,50 @@
+// 🔥 Firebase helpers
+
+function guardarEnNube(clave, datos){
+   db.ref(clave).set(datos);
+}
+
+function leerDeNube(clave, callback){
+   db.ref(clave).once("value", snap=>{
+      callback(snap.val());
+   });
+}
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded",()=>{
    if(localStorage.getItem("usuarioActivo")){
       loginScreen.style.display="none";
       app.style.display="block";
       mostrarUsuarioActivo();   // 👈 NUEVO
+      leerDeNube("prestamos", data=>{
+   if(data){
+      prestamos = data;
+      localStorage.setItem("prestamos", JSON.stringify(data));
+      mostrarPrestamos();
+   }
+});
+
    }
 });
 
 
-if(!localStorage.getItem("usuarios")){
-    const inicial = [
- { "user":"admin", "pass":"1234" },
- { "user":"juan", "pass":"abcd" }
-]
-    localStorage.setItem("usuarios", JSON.stringify(inicial));
-}
+leerDeNube("usuarios", data=>{
+   if(data){
+      localStorage.setItem("usuarios", JSON.stringify(data));
+   }else{
+      const inicial = [
+        {user:"admin", pass:"1234"},
+        {user:"juan", pass:"abcd"}
+      ];
+      localStorage.setItem("usuarios", JSON.stringify(inicial));
+      guardarEnNube("usuarios", inicial);
+   }
+});
+
 
 
 
@@ -173,7 +204,9 @@ function cambiarEstadoCuota(prestamoId, cuotaNumero, nuevoEstado) {
 
     // Guardar cambios en localStorage
     localStorage.setItem('prestamos', JSON.stringify(prestamos));
-   
+   guardarEnNube("prestamos", prestamos);
+
+
 
     mostrarPrestamos();
     cargarAniosDisponibles(); // Actualizar años si hay nuevas cuotas pagadas
@@ -187,7 +220,8 @@ function borrarPrestamo(id) {
 );
 
         localStorage.setItem('prestamos', JSON.stringify(prestamos));
-        
+        guardarEnNube("prestamos", prestamos);
+
 
         mostrarPrestamos();
         cargarAniosDisponibles(); // Actualizar años después de borrar
@@ -297,7 +331,8 @@ if (isNaN(montoOriginal) || montoOriginal <= 0) {
 
     // Guardar y actualizar vista
     localStorage.setItem('prestamos', JSON.stringify(prestamos));
-    
+    guardarEnNube("prestamos", prestamos);
+
 
     mostrarPrestamos();
     cargarAniosDisponibles(); // Actualizar años después de guardar
@@ -557,8 +592,12 @@ function login(){
 
    localStorage.setItem("usuarioActivo", u);
 
-   prestamos = JSON.parse(localStorage.getItem("prestamos")) || [];
+  leerDeNube("prestamos", data=>{
+   prestamos = data || [];
+   localStorage.setItem("prestamos", JSON.stringify(prestamos));
    mostrarPrestamos();
+});
+
    mostrarUsuarioActivo();   // 👈 NUEVO
 
    loginScreen.classList.add("fadeOut");
@@ -610,6 +649,8 @@ function crearUsuario(){
    });
 
    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+   guardarEnNube("usuarios", usuarios);
+
 
    alert("Usuario creado");
    cerrarRegistro();
@@ -640,6 +681,8 @@ function guardarNuevaClave(){
 
    userObj.pass = nuevaClave;
    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+   guardarEnNube("usuarios", usuarios);
+
 
    alert("Contraseña actualizada correctamente");
 
