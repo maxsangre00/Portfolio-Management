@@ -11,28 +11,38 @@ function leerDeNube(clave, callback){
 }
 
 
-
-
-
-
 document.addEventListener("DOMContentLoaded",()=>{
+
+   // Estado inicial
+   app.style.display = "none";
+   loginScreen.style.display = "flex";
+
+   // Si hay usuario activo
    if(localStorage.getItem("usuarioActivo")){
-      loginScreen.style.display="none";
-      app.style.display="block";
-      mostrarUsuarioActivo();   // 👈 NUEVO
+
+      loginScreen.style.display = "none";
+      app.style.display = "block";
+
+      mostrarUsuarioActivo();
+
       leerDeNube("prestamos", data=>{
-   if(data){
-      prestamos = data;
-      localStorage.setItem("prestamos", JSON.stringify(data));
-      mostrarPrestamos();
+         if(data){
+            prestamos = data;
+            localStorage.setItem("prestamos", JSON.stringify(data));
+            mostrarPrestamos();
+         }
+      });
    }
+
 });
 
-   }
-});
 
 
 leerDeNube("usuarios", data=>{
+    if(!data){
+   guardarEnNube("usuarios", []);
+}
+
    if(data){
       localStorage.setItem("usuarios", JSON.stringify(data));
    }else{
@@ -579,29 +589,37 @@ const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
 
     
 function login(){
-    const u = user.value.trim();
-    const p = pass.value.trim();
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios"));
+    const userInput = document.getElementById("user");
+    const passInput = document.getElementById("pass");
+
+    if(!userInput || !passInput){
+        alert("Inputs de login no encontrados");
+        return;
+    }
+
+    const u = userInput.value.trim();
+    const p = passInput.value.trim();
+
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     const existe = usuarios.find(
         x => x.user === u && x.pass === p
     );
 
-   if(existe){
+    if(existe){
 
-   localStorage.setItem("usuarioActivo", u);
+        localStorage.setItem("usuarioActivo", u);
 
-  leerDeNube("prestamos", data=>{
-   prestamos = data || [];
-   localStorage.setItem("prestamos", JSON.stringify(prestamos));
-   mostrarPrestamos();
-});
+        leerDeNube("prestamos", data=>{
+            prestamos = data || [];
+            localStorage.setItem("prestamos", JSON.stringify(prestamos));
+            mostrarPrestamos();
+        });
 
-   mostrarUsuarioActivo();   // 👈 NUEVO
+        mostrarUsuarioActivo();
 
-   loginScreen.classList.add("fadeOut");
-
+        loginScreen.classList.add("fadeOut");
 
         setTimeout(()=>{
             loginScreen.style.display="none";
@@ -624,17 +642,27 @@ function cerrarRegistro(){
 
 function crearUsuario(){
 
-   const u = newUser.value.trim();
-   const p = newPassUser.value.trim();
-   const preg = preguntaUser.value.trim();
-   const resp = respuestaUser.value.trim();
+   const newUserInput = document.getElementById("newUser");
+   const newPassInput = document.getElementById("newPassUser");
+   const preguntaInput = document.getElementById("preguntaUser");
+   const respuestaInput = document.getElementById("respuestaUser");
+
+   if(!newUserInput || !newPassInput || !preguntaInput || !respuestaInput){
+      alert("Campos de registro no encontrados");
+      return;
+   }
+
+   const u = newUserInput.value.trim();
+   const p = newPassInput.value.trim();
+   const preg = preguntaInput.value.trim();
+   const resp = respuestaInput.value.trim();
 
    if(!u || !p || !preg || !resp){
      alert("Completa todos los campos");
      return;
    }
 
-   const usuarios = JSON.parse(localStorage.getItem("usuarios"));
+   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
    if(usuarios.some(x => x.user === u)){
      alert("Ese usuario ya existe");
@@ -651,10 +679,10 @@ function crearUsuario(){
    localStorage.setItem("usuarios", JSON.stringify(usuarios));
    guardarEnNube("usuarios", usuarios);
 
-
    alert("Usuario creado");
    cerrarRegistro();
 }
+
 function guardarNuevaClave(){
 
    const usuario = changeUser.value.trim();
@@ -666,7 +694,8 @@ function guardarNuevaClave(){
       return;
    }
 
-   const usuarios = JSON.parse(localStorage.getItem("usuarios"));
+   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
    const userObj = usuarios.find(u => u.user === usuario);
 
    if(!userObj){
@@ -699,7 +728,8 @@ function recuperarClave(){
    const u = prompt("Usuario:");
    if(!u) return;
 
-   const usuarios = JSON.parse(localStorage.getItem("usuarios"));
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
    const userObj = usuarios.find(x => x.user === u);
 
    if(!userObj){
@@ -727,10 +757,6 @@ function logout(){
 }
 
 
-document.addEventListener("DOMContentLoaded",()=>{
-   app.style.display="none";
-   loginScreen.style.display="flex";
-});
 
 
 function exportarPrestamos(){
