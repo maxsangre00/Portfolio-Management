@@ -46,22 +46,15 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 
 
-leerDeNube("usuarios", data=>{
-    if(!data){
-   guardarEnNube("usuarios", []);
-}
-
-   if(data){
+leerDeNube("usuarios", data => {
+   if (data) {
       localStorage.setItem("usuarios", JSON.stringify(data));
-   }else{
-      const inicial = [
-        {user:"admin", pass:"1234"},
-        {user:"juan", pass:"abcd"}
-      ];
-      localStorage.setItem("usuarios", JSON.stringify(inicial));
-      guardarEnNube("usuarios", inicial);
+   } else {
+      localStorage.setItem("usuarios", JSON.stringify([]));
+      guardarEnNube("usuarios", []);
    }
 });
+
 
 
 
