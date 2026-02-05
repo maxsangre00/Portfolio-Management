@@ -1,14 +1,22 @@
 // 🔥 Firebase helpers
 
 function guardarEnNube(clave, datos){
-   db.ref(clave).set(datos);
+   const usuario = localStorage.getItem("usuarioActivo");
+   if(!usuario) return;
+
+   db.ref(`${clave}/${usuario}`).set(datos);
 }
 
+
 function leerDeNube(clave, callback){
-   db.ref(clave).once("value", snap=>{
+   const usuario = localStorage.getItem("usuarioActivo");
+   if(!usuario) return;
+
+   db.ref(`${clave}/${usuario}`).once("value", snap=>{
       callback(snap.val());
    });
 }
+
 
 
 document.addEventListener("DOMContentLoaded",()=>{
