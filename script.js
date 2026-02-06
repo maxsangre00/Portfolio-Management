@@ -600,16 +600,26 @@ const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
     `;
 }
 
-    
-function login(){
+  function login(){
 
   const u = user.value.trim();
   const p = pass.value.trim();
 
   auth.signInWithEmailAndPassword(u + "@app.com", p)
-  .then(()=>{
-      localStorage.setItem("usuarioActivo", u);
-      mostrarUsuarioActivo();
+  .then((cred)=>{
+
+      const uid = cred.user.uid;
+
+      localStorage.setItem("usuarioActivo", uid);
+
+      // mostrar nombre real
+      db.ref("usuarios/" + uid).once("value", snap => {
+        const data = snap.val();
+        if(data?.username){
+          document.getElementById("usuarioMostrado").textContent = "👤 " + data.username;
+        }
+      });
+
       loginScreen.style.display="none";
       app.style.display="block";
 
@@ -628,6 +638,8 @@ function login(){
 
 
 
+
+
 function abrirRegistro(){
    modalRegistro.style.display="flex";
 }
@@ -641,18 +653,27 @@ function crearUsuario(){
   const u = newUser.value.trim();
   const p = newPassUser.value.trim();
 
-if (password.length < 6) {
-  alert("La contraseña debe tener al menos 6 caracteres");
-  return;
-}
-
   if(!u || !p){
     alert("Completa usuario y contraseña");
     return;
   }
 
+  if(p.length < 6){
+    alert("La contraseña debe tener al menos 6 caracteres");
+    return;
+  }
+
   auth.createUserWithEmailAndPassword(u + "@app.com", p)
-  .then(()=>{
+  .then((cred)=>{
+
+      const uid = cred.user.uid;
+
+      // 🔥 GUARDAR PERFIL EN LA DB
+      db.ref("usuarios/" + uid).set({
+        username: u,
+        creado: new Date().toISOString()
+      });
+
       alert("Usuario creado correctamente");
       cerrarRegistro();
   })
@@ -661,6 +682,7 @@ if (password.length < 6) {
   });
 
 }
+
 
 
 function guardarNuevaClave(){
