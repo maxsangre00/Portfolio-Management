@@ -603,46 +603,29 @@ const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
     
 function login(){
 
-    const userInput = document.getElementById("user");
-    const passInput = document.getElementById("pass");
+  const u = user.value.trim();
+  const p = pass.value.trim();
 
-    if(!userInput || !passInput){
-        alert("Inputs de login no encontrados");
-        return;
-    }
+  auth.signInWithEmailAndPassword(u + "@app.com", p)
+  .then(()=>{
+      localStorage.setItem("usuarioActivo", u);
+      mostrarUsuarioActivo();
+      loginScreen.style.display="none";
+      app.style.display="block";
 
-    const u = userInput.value.trim();
-    const p = passInput.value.trim();
+      leerDeNube("prestamos", data=>{
+        prestamos = data || [];
+        localStorage.setItem("prestamos", JSON.stringify(prestamos));
+        mostrarPrestamos();
+      });
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  })
+  .catch(()=>{
+      msg.textContent="Usuario o contraseña incorrectos";
+  });
 
-    const existe = usuarios.find(
-        x => x.user === u && x.pass === p
-    );
-
-    if(existe){
-
-        localStorage.setItem("usuarioActivo", u);
-
-        leerDeNube("prestamos", data=>{
-            prestamos = data || [];
-            localStorage.setItem("prestamos", JSON.stringify(prestamos));
-            mostrarPrestamos();
-        });
-
-        mostrarUsuarioActivo();
-
-        loginScreen.classList.add("fadeOut");
-
-        setTimeout(()=>{
-            loginScreen.style.display="none";
-            app.style.display="block";
-        },600);
-
-    }else{
-        msg.textContent="Usuario o contraseña incorrectos";
-    }
 }
+
 
 
 function abrirRegistro(){
@@ -655,47 +638,25 @@ function cerrarRegistro(){
 
 function crearUsuario(){
 
-   const newUserInput = document.getElementById("newUser");
-   const newPassInput = document.getElementById("newPassUser");
-   const preguntaInput = document.getElementById("preguntaUser");
-   const respuestaInput = document.getElementById("respuestaUser");
+  const u = newUser.value.trim();
+  const p = newPassUser.value.trim();
 
-   if(!newUserInput || !newPassInput || !preguntaInput || !respuestaInput){
-      alert("Campos de registro no encontrados");
-      return;
-   }
+  if(!u || !p){
+    alert("Completa usuario y contraseña");
+    return;
+  }
 
-   const u = newUserInput.value.trim();
-   const p = newPassInput.value.trim();
-   const preg = preguntaInput.value.trim();
-   const resp = respuestaInput.value.trim();
+  auth.createUserWithEmailAndPassword(u + "@app.com", p)
+  .then(()=>{
+      alert("Usuario creado correctamente");
+      cerrarRegistro();
+  })
+  .catch(error=>{
+      alert(error.message);
+  });
 
-   if(!u || !p || !preg || !resp){
-     alert("Completa todos los campos");
-     return;
-   }
-
-   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-   if(usuarios.some(x => x.user === u)){
-     alert("Ese usuario ya existe");
-     return;
-   }
-
-   usuarios.push({
-     user: u,
-     pass: p,
-     pregunta: preg,
-     respuesta: resp.toLowerCase()
-   });
-
-   localStorage.setItem("usuarios", JSON.stringify(usuarios));
- guardarUsuariosEnNube(usuarios);
-
-
-   alert("Usuario creado");
-   cerrarRegistro();
 }
+
 
 function guardarNuevaClave(){
 
@@ -767,8 +728,10 @@ function recuperarClave(){
 }
 
 function logout(){
-   localStorage.removeItem("usuarioActivo");
-   location.reload();
+   auth.signOut().then(()=>{
+      localStorage.removeItem("usuarioActivo");
+      location.reload();
+   });
 }
 
 
