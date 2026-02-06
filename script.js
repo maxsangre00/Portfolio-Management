@@ -1,17 +1,23 @@
 // 🔥 Firebase helpers
 
+function guardarUsuariosEnNube(datos){
+   db.ref("usuarios").set(datos);
+}
+function leerUsuariosDeNube(callback){
+   db.ref("usuarios").once("value", snap=>{
+      callback(snap.val());
+   });
+}
+
 function guardarEnNube(clave, datos){
    const usuario = localStorage.getItem("usuarioActivo");
    if(!usuario) return;
-
    db.ref(`${clave}/${usuario}`).set(datos);
 }
-
 
 function leerDeNube(clave, callback){
    const usuario = localStorage.getItem("usuarioActivo");
    if(!usuario) return;
-
    db.ref(`${clave}/${usuario}`).once("value", snap=>{
       callback(snap.val());
    });
@@ -19,7 +25,23 @@ function leerDeNube(clave, callback){
 
 
 
+
+
+
 document.addEventListener("DOMContentLoaded",()=>{
+leerUsuariosDeNube(data => {
+
+   if(data){
+      const arrayUsuarios = Object.values(data);
+      localStorage.setItem("usuarios", JSON.stringify(arrayUsuarios));
+   }else{
+      const vacio = [];
+      localStorage.setItem("usuarios", JSON.stringify(vacio));
+      guardarUsuariosEnNube(vacio);
+   }
+
+});
+
 
    // Estado inicial
    app.style.display = "none";
@@ -45,13 +67,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 
-
-leerDeNube("usuarios", data=>{ if(!data){
-     guardarEnNube("usuarios", []); 
-    } if(data){ localStorage.setItem("usuarios", JSON.stringify(data));
-
-     }else{ const inicial = [ {user:"admin", pass:"1234"}, {user:"juan", pass:"abcd"} ]; 
-     localStorage.setItem("usuarios", JSON.stringify(inicial)); guardarEnNube("usuarios", inicial); } });
 
 
 
@@ -675,7 +690,8 @@ function crearUsuario(){
    });
 
    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-   guardarEnNube("usuarios", usuarios);
+ guardarUsuariosEnNube(usuarios);
+
 
    alert("Usuario creado");
    cerrarRegistro();
@@ -708,7 +724,8 @@ function guardarNuevaClave(){
 
    userObj.pass = nuevaClave;
    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-   guardarEnNube("usuarios", usuarios);
+   guardarUsuariosEnNube(usuarios);
+
 
 
    alert("Contraseña actualizada correctamente");
