@@ -641,6 +641,11 @@ function crearUsuario(){
   const u = newUser.value.trim();
   const p = newPassUser.value.trim();
 
+if (password.length < 6) {
+  alert("La contraseña debe tener al menos 6 caracteres");
+  return;
+}
+
   if(!u || !p){
     alert("Completa usuario y contraseña");
     return;
