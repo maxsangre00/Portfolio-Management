@@ -1,347 +1,298 @@
-// 🔥 Firebase helpers
 
-
-
-function guardarEnNube(clave, datos){
-   const usuario = localStorage.getItem("usuarioActivo");
-   if(!usuario) return;
-   db.ref(`${clave}/${usuario}`).set(datos);
-}
-
-function leerDeNube(clave, callback){
-   const usuario = localStorage.getItem("usuarioActivo");
-   if(!usuario) return;
-   db.ref(`${clave}/${usuario}`).once("value", snap=>{
-      callback(snap.val());
-   });
+ function guardarUsuariosEnNube(usuarios){
+   db.ref("usuarios").set(usuarios);
 }
 
 
+function leerUsuariosDeNube(callback){
+         db.ref("usuarios").once("value", 
+            snap=>{ callback(snap.val()); 
 
+            }); } 
+            
+function guardarEnNube(clave, datos){ 
+  const usuario = localStorage.getItem("usuarioActivo"); 
+  if(!usuario) 
+    return;
 
-
-
-
-
-
- auth.onAuthStateChanged(user => {
-
-  if(user){
-    localStorage.setItem("usuarioActivo", user.uid);
-
-    loginScreen.style.display = "none";
-    app.style.display = "block";
-
-    mostrarUsuarioActivo();
-
-    leerDeNube("prestamos", data=>{
-      prestamos = data || [];
-      localStorage.setItem("prestamos", JSON.stringify(prestamos));
-      mostrarPrestamos();
-    });
-
-  }else{
-    localStorage.removeItem("usuarioActivo");
-
-    app.style.display = "none";
-    loginScreen.style.display = "flex";
-  }
-
-});
-
-
-  
-// VARIABLES GLOBALES
-let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
-const addBtn = document.getElementById('addBtn');
-const modal = document.getElementById('modal');
-const emptyMsg = document.getElementById('emptyMsg');
-const reportBtn = document.getElementById('reportBtn');
-const reportSection = document.getElementById('reportSection');
-const yearSelector = document.getElementById('yearSelector');
-
-// CONFIGURACIÓN INICIAL
-document.addEventListener('DOMContentLoaded', () => {
-    // Establecer fecha actual por defecto en el input
-    const fechaInput = document.getElementById('fechaOtorgamiento');
-    if (fechaInput) {
-        fechaInput.value = new Date().toISOString().split('T')[0];
-    }
-
-    // Asignar eventos a botones
-    if (addBtn) addBtn.onclick = abrirModalNuevo;
-    if (reportBtn) reportBtn.onclick = toggleReportSection;
-
-    // Cargar años disponibles para el informe
-    cargarAniosDisponibles();
-    
-    // Cargar préstamos al iniciar
-    mostrarPrestamos();
-});
-
-// FUNCIONES DE MODAL
-function cerrarModal() {
-    if (modal) modal.style.display = 'none';
+  db.ref(`${clave}/${usuario}`).set(datos);
 }
 
-function abrirModalNuevo() {
+function leerDeNube(clave, callback){ 
+    const usuario = localStorage.getItem("usuarioActivo"); 
+    if(!usuario)
+         return;
+     db.ref(`${clave}/${usuario}`).once("value", 
+        snap=>{ callback(snap.val()); 
+
+        }); } 
+
+        const loginScreen = document.getElementById("loginScreen");
+const app = document.getElementById("app");
+
+console.log(loginScreen, app);
+
+
+        
+document.addEventListener("DOMContentLoaded",()=>{ 
+    leerUsuariosDeNube(data => { if(data){ 
+        const arrayUsuarios = Object.values(data); 
+       localStorage.setItem("usuarios", JSON.stringify(data));
+
+     }else{ 
+        const vacio = {}; 
+        localStorage.setItem("usuarios", JSON.stringify(vacio));
+         guardarUsuariosEnNube(vacio);
+        } 
+    }); 
+   /*estado inicial*/
+     app.style.display = "none";
+      loginScreen.style.display = "flex"; 
+      // Si hay usuario activo*/
+       if(localStorage.getItem("usuarioActivo")){ 
+        loginScreen.style.display = "none";
+         app.style.display = "block"; mostrarUsuarioActivo(); 
+         leerDeNube("prestamos",
+             data=>{ if(data){ 
+prestamos = Array.isArray(data) ? data : Object.values(data);
+                 mostrarPrestamos();
+                 } }); } });
+
+  // VARIABLES GLOBALES *//
+ let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
+  const addBtn = document.getElementById('addBtn'); 
+  const modal = document.getElementById('modal'); 
+  const emptyMsg = document.getElementById('emptyMsg'); 
+  const reportBtn = document.getElementById('reportBtn');
+   const reportSection = document.getElementById('reportSection'); 
+   const yearSelector = document.getElementById('yearSelector');
+   
+   // CONFIGURACIÓN INICIAL //
+   document.addEventListener('DOMContentLoaded', () => { 
+   
+    // Establecer fecha actual por defecto en el input //
+     const fechaInput = document.getElementById('fechaOtorgamiento');
+      if (fechaInput) {
+         fechaInput.value = new Date().toISOString().split('T')[0]; 
+        } 
+        
+        // Asignar eventos a botones //
+        if (addBtn) addBtn.onclick = abrirModalNuevo; 
+        if (reportBtn) reportBtn.onclick = toggleReportSection;
+        
+        // Cargar años disponibles para el informe//
+         cargarAniosDisponibles(); 
+         
+         // Cargar préstamos al iniciar//
+          mostrarPrestamos();
+         });
+        
+         // FUNCIONES DE MODAL //
+function cerrarModal() { 
+    if (modal) modal.style.display = 'none'; 
+} 
+
+function abrirModalNuevo() { 
     const modalTitulo = document.getElementById('modalTitulo');
-    const prestamoIdInput = document.getElementById('prestamoId');
-    const nombreInput = document.getElementById('nombre');
-    const fechaInput = document.getElementById('fechaOtorgamiento');
-    const montoInput = document.getElementById('monto');
+     const prestamoIdInput = document.getElementById('prestamoId'); 
+     const nombreInput = document.getElementById('nombre'); 
+     const fechaInput = document.getElementById('fechaOtorgamiento'); 
+     const montoInput = document.getElementById('monto'); 
      const cuotasInput = document.getElementById('cuotas');
-    const frecuenciaSelect = document.getElementById('frecuenciaPago');
-    const montoOriginalInput = document.getElementById('montoOriginal');
-
-    if (modalTitulo) modalTitulo.textContent = 'Agregar Préstamo';
-    if (prestamoIdInput) prestamoIdInput.value = '';
-    if (nombreInput) nombreInput.value = '';
-    if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
-    if (montoInput) montoInput.value = '';
-    if (cuotasInput) cuotasInput.value = '';
-    if (frecuenciaSelect) frecuenciaSelect.value = 'mensual';
-if (montoOriginalInput) montoOriginalInput.value = '';
-    if (modal) modal.style.display = 'block';
-}
-
-function abrirModalEditar(id) {
+      const frecuenciaSelect = document.getElementById('frecuenciaPago');
+       const montoOriginalInput = document.getElementById('montoOriginal');
+       
+       if (modalTitulo) modalTitulo.textContent = 'Agregar Préstamo';
+        if (prestamoIdInput) prestamoIdInput.value = ''; 
+        if (nombreInput) nombreInput.value = ''; 
+        if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0]; 
+        if (montoInput) montoInput.value = ''; if (cuotasInput) cuotasInput.value = '';
+         if (frecuenciaSelect) frecuenciaSelect.value = 'mensual'; 
+         if (montoOriginalInput) montoOriginalInput.value = ''; 
+         if (modal) modal.style.display = 'block';
+         } 
+         
+function abrirModalEditar(id) { 
     const prestamo = prestamos.find(p => p.id === id);
-    if (!prestamo) return;
-
-    const modalTitulo = document.getElementById('modalTitulo');
-    const prestamoIdInput = document.getElementById('prestamoId');
-    const nombreInput = document.getElementById('nombre');
-    const fechaInput = document.getElementById('fechaOtorgamiento');
-    const montoInput = document.getElementById('monto');
-      const cuotasInput = document.getElementById('cuotas');
-    const frecuenciaSelect = document.getElementById('frecuenciaPago');
-    const montoOriginalInput = document.getElementById('montoOriginal');
-if (montoOriginalInput) {
-    montoOriginalInput.value = prestamo.montoOriginal;
-}
-
-
-
-    if (modalTitulo) modalTitulo.textContent = 'Editar Préstamo';
-    if (prestamoIdInput) prestamoIdInput.value = prestamo.id;
-    if (nombreInput) nombreInput.value = prestamo.nombre;
-    if (fechaInput) fechaInput.value = prestamo.fechaOtorgamiento;
-    if (montoInput) montoInput.value = prestamo.monto;
-    if (cuotasInput) cuotasInput.value = prestamo.cantidadCuotas;
-    if (frecuenciaSelect) frecuenciaSelect.value = prestamo.frecuenciaPago;
-
-    if (modal) modal.style.display = 'block';
-}
-
-// FUNCIONES DE GESTIÓN DE CUOTAS
-function generarFechasCuotas(fechaOtorgamiento, cantidadCuotas, frecuencia) {
-    const cuotas = [];
-    const fechaBase = new Date(fechaOtorgamiento);
-    let fechaVencimiento = new Date(fechaBase);
-
-    const incrementarFecha = (fecha, freq) => {
-        switch(freq) {
-            case 'mensual': 
-                fecha.setMonth(fecha.getMonth() + 1); 
-                break;
-            case 'semanal': 
-                fecha.setDate(fecha.getDate() + 7); 
-                break;
-            case 'quincenal': 
-                fecha.setDate(fecha.getDate() + 15); 
-                break;
-            default:
-                fecha.setMonth(fecha.getMonth() + 1);
-        }
-        return fecha;
-    };
-
-    // Generar cada cuota
-    for (let i = 1; i <= cantidadCuotas; i++) {
-        fechaVencimiento = incrementarFecha(new Date(fechaVencimiento), frecuencia);
-        cuotas.push({
-            numero: i,
-            fechaVencimiento: fechaVencimiento.toISOString().split('T')[0],
-            pagada: false,
-            fechaPago: null
-        });
-    }
-
-    return cuotas;
-}
-
-function calcularInteresAtraso(cuota, montoCuotaBase) {
-    if (cuota.pagada) return 0;
-
-    const hoy = new Date();
-    const fechaVencimiento = new Date(cuota.fechaVencimiento);
-    
-    if (fechaVencimiento >= hoy) return 0;
-
-    const diferenciaMs = hoy - fechaVencimiento;
-    const diasAtraso = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
-    return parseFloat((montoCuotaBase * 0.01 * diasAtraso).toFixed(2));
-}
-
-function toggleCuotas(prestamoId) {
-    const seccion = document.getElementById(`cuotas-${prestamoId}`);
-    if (seccion) {
-        seccion.style.display = seccion.style.display === 'block' ? 'none' : 'block';
-    }
-}
-
-function cambiarEstadoCuota(prestamoId, cuotaNumero, nuevoEstado) {
-    const prestamoIndex = prestamos.findIndex(p => p.id === prestamoId);
-    if (prestamoIndex === -1) return;
-
-    const cuotaIndex = prestamos[prestamoIndex].cuotas.findIndex(c => c.numero === cuotaNumero);
-    if (cuotaIndex === -1) return;
-
-    prestamos[prestamoIndex].cuotas[cuotaIndex].pagada = nuevoEstado;
-   prestamos[prestamoIndex].cuotas[cuotaIndex].fechaPago = nuevoEstado 
-        ? new Date().toLocaleDateString('en-CA')
-        : null;
-
-
-    // Guardar cambios en localStorage
-    localStorage.setItem('prestamos', JSON.stringify(prestamos));
-   guardarEnNube("prestamos", prestamos);
-
-
-
-    mostrarPrestamos();
-    cargarAniosDisponibles(); // Actualizar años si hay nuevas cuotas pagadas
-}
-
-// FUNCIONES DE GESTIÓN DE PRÉSTAMOS
-function borrarPrestamo(id) {
-    if (confirm('¿Estás seguro de borrar este préstamo? Esta acción no se puede deshacer.')) {
-       prestamos = prestamos.filter(
-   p => p.id !== id || p.usuario !== localStorage.getItem("usuarioActivo")
-);
-
-        localStorage.setItem('prestamos', JSON.stringify(prestamos));
-        guardarEnNube("prestamos", prestamos);
-
-
-        mostrarPrestamos();
-        cargarAniosDisponibles(); // Actualizar años después de borrar
-        generarInformeMensual(); // Actualizar informe si está abierto
-    }
-}
-
-function guardarPrestamo() {
-    const prestamoIdInput = document.getElementById('prestamoId');
-    const nombreInput = document.getElementById('nombre');
-    const fechaInput = document.getElementById('fechaOtorgamiento');
-    const montoInput = document.getElementById('monto');
-    const cuotasInput = document.getElementById('cuotas');
-    const frecuenciaSelect = document.getElementById('frecuenciaPago');
- 
-    const montoOriginalInput = document.getElementById('montoOriginal');
-
-if (!montoOriginalInput) {
-    alert("No existe el campo montoOriginal en el HTML");
-    return;
-}
-
-const montoOriginal = parseFloat(montoOriginalInput.value);
-
-
-if (isNaN(montoOriginal) || montoOriginal <= 0) {
-    alert('Ingresa un monto original válido');
-    montoOriginalInput.focus();
-    return;
-}
-
-
-    // Validar que existan todos los inputs
-    if (!nombreInput || !fechaInput || !montoInput || !cuotasInput || !frecuenciaSelect) {
-        alert('Error en los elementos del formulario');
-        return;
-    }
-
-    const id = prestamoIdInput.value;
-    const nombre = nombreInput.value.trim();
-    const fechaOtorgamiento = fechaInput.value;
-    const monto = parseFloat(montoInput.value);
-    const cantidadCuotas = parseInt(cuotasInput.value);
-    const frecuenciaPago = frecuenciaSelect.value;
-
-    // Validar datos ingresados
-    if (!nombre) {
-        alert('Ingresa el nombre del cliente');
-        nombreInput.focus();
-        return;
-    }
-
-    if (!fechaOtorgamiento) {
-        alert('Selecciona la fecha de otorgamiento');
-        fechaInput.focus();
-        return;
-    }
-
-    if (isNaN(monto) || monto <= 0) {
-        alert('Ingresa un monto válido mayor a cero');
-        montoInput.focus();
-        return;
-    }
-
-    if (isNaN(cantidadCuotas) || cantidadCuotas <= 0) {
-        alert('Ingresa una cantidad de cuotas válida mayor a cero');
-        cuotasInput.focus();
-        return;
-    }
-
-    const montoCuotaBase = parseFloat((monto / cantidadCuotas).toFixed(2));
-    const cuotas = generarFechasCuotas(fechaOtorgamiento, cantidadCuotas, frecuenciaPago);
-
-    if (id) {
-        // Editar préstamo existente
-        const prestamoIndex = prestamos.findIndex(p => p.id === parseInt(id));
-        if (prestamoIndex !== -1) {
-            prestamos[prestamoIndex] = {
-    id: parseInt(id),
-    usuario: prestamos[prestamoIndex].usuario,
-    nombre,
-    fechaOtorgamiento,
-    monto,
-    cantidadCuotas,
-    frecuenciaPago,
-    montoCuotaBase,
-    montoOriginal,
-    cuotas
+     if (!prestamo) return;
+      const modalTitulo = document.getElementById('modalTitulo');
+      const prestamoIdInput = document.getElementById('prestamoId'); 
+      const nombreInput = document.getElementById('nombre');
+       const fechaInput = document.getElementById('fechaOtorgamiento');
+        const montoInput = document.getElementById('monto'); 
+        const cuotasInput = document.getElementById('cuotas');
+         const frecuenciaSelect = document.getElementById('frecuenciaPago');
+          const montoOriginalInput = document.getElementById('montoOriginal');
+           if (montoOriginalInput) { 
+            montoOriginalInput.value = prestamo.montoOriginal;
+         } 
+         if (modalTitulo) modalTitulo.textContent = 'Editar Préstamo';
+          if (prestamoIdInput) prestamoIdInput.value = prestamo.id;
+           if (nombreInput) nombreInput.value = prestamo.nombre;
+            if (fechaInput) fechaInput.value = prestamo.fechaOtorgamiento; 
+            if (montoInput) montoInput.value = prestamo.monto; 
+            if (cuotasInput) cuotasInput.value = prestamo.cantidadCuotas; 
+            if (frecuenciaSelect) frecuenciaSelect.value = prestamo.frecuenciaPago; 
+            if (modal) modal.style.display = 'block'; 
+        } 
+        
+        // FUNCIONES DE GESTIÓN DE CUOTAS//
+        
+        function generarFechasCuotas(fechaOtorgamiento, cantidadCuotas, frecuencia) { 
+            const cuotas = []; 
+            const fechaBase = new Date(fechaOtorgamiento);
+             let fechaVencimiento = new Date(fechaBase); 
+           const incrementarFecha = (fecha, freq) => {
+  switch(freq) {
+    case 'mensual':
+      fecha.setMonth(fecha.getMonth() + 1);
+      break;
+    case 'semanal':
+      fecha.setDate(fecha.getDate() + 7);
+      break;
+    case 'quincenal':
+      fecha.setDate(fecha.getDate() + 15);
+      break;
+  }
+  return fecha;
 };
-        }
-    } else {
-        // Agregar nuevo préstamo
-        prestamos.push({
-    id: Date.now(),
-    usuario: localStorage.getItem("usuarioActivo"),
-    nombre: nombre,
-    fechaOtorgamiento: fechaOtorgamiento,
-    monto: monto,
-    cantidadCuotas: cantidadCuotas,
-    frecuenciaPago: frecuenciaPago,
-    montoCuotaBase: montoCuotaBase,
-    montoOriginal: montoOriginal,
-    cuotas: cuotas
-});
+                      
+                    
+                    
+// Generar cada cuota//
+
+ for (let i = 1; i <= cantidadCuotas; i++) { 
+    fechaVencimiento = incrementarFecha(new Date(fechaVencimiento), frecuencia); 
+    cuotas.push({ numero: i, fechaVencimiento: fechaVencimiento.toISOString().split('T')[0],
+         pagada: false,
+          fechaPago: null 
+        }); 
+    } 
+    return cuotas;
+ } 
+    
+    function calcularInteresAtraso(cuota, montoCuotaBase) { 
+      if (cuota.pagada) return 0;
+
+        const hoy = new Date(); 
+        const fechaVencimiento = new Date(cuota.fechaVencimiento); 
+       if (fechaVencimiento >= hoy) return 0;
+
+        const diferenciaMs = hoy - fechaVencimiento; 
+        const diasAtraso = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)); 
+       return parseFloat((montoCuotaBase * 0.01 * diasAtraso).toFixed(2));
 
     }
+    
+function toggleCuotas(prestamoId) { 
+  const seccion = document.getElementById(`cuotas-${prestamoId}`); 
 
-    // Guardar y actualizar vista
-    localStorage.setItem('prestamos', JSON.stringify(prestamos));
-    guardarEnNube("prestamos", prestamos);
-
-
-    mostrarPrestamos();
-    cargarAniosDisponibles(); // Actualizar años después de guardar
-    cerrarModal();
+  if (seccion) {
+    seccion.style.display = 
+      seccion.style.display === 'block' ? 'none' : 'block';
+  }
 }
 
-// FUNCIÓN DE VISUALIZACIÓN DE PRÉSTAMOS
+function cambiarEstadoCuota(prestamoId, cuotaNumero, nuevoEstado) { 
+    const prestamoIndex = prestamos.findIndex(p => p.id === prestamoId);
+     if (prestamoIndex === -1) return;
+      const cuotaIndex = prestamos[prestamoIndex].cuotas.findIndex(c => c.numero === cuotaNumero);
+       if (cuotaIndex === -1)
+         return; 
+        prestamos[prestamoIndex].cuotas[cuotaIndex].pagada = nuevoEstado;
+         prestamos[prestamoIndex].cuotas[cuotaIndex].fechaPago = nuevoEstado ? new Date().toLocaleDateString('en-CA') : null; 
+         
+         // Guardar cambios en localStorage//
+         
+         localStorage.setItem('prestamos', JSON.stringify(prestamos));
+          guardarEnNube("prestamos", prestamos); 
+          mostrarPrestamos(); 
+          cargarAniosDisponibles(); 
+          
+          // Actualizar años si hay nuevas cuotas pagadas //
+          } 
+          // FUNCIONES DE GESTIÓN DE PRÉSTAMOS 
+function borrarPrestamo(id) { 
+            if (confirm('¿Estás seguro de borrar este préstamo? Esta acción no se puede deshacer.'))
+                 { prestamos = prestamos.filter( p => p.id !== id || p.usuario !== localStorage.getItem("usuarioActivo") ); 
+                    localStorage.setItem('prestamos', JSON.stringify(prestamos)); 
+                    guardarEnNube("prestamos", prestamos);
+                     mostrarPrestamos(); 
+                    cargarAniosDisponibles(); 
+                    // Actualizar años después de borrar //
+                    generarInformeMensual(); 
+                    // Actualizar informe si está abierto//
+                     } } 
+ function guardarPrestamo() {
+     const prestamoIdInput = document.getElementById('prestamoId'); 
+     const nombreInput = document.getElementById('nombre'); 
+     const fechaInput = document.getElementById('fechaOtorgamiento');
+      const montoInput = document.getElementById('monto'); 
+      const cuotasInput = document.getElementById('cuotas'); 
+      
+      const frecuenciaSelect = document.getElementById('frecuenciaPago');
+       const montoOriginalInput = document.getElementById('montoOriginal');
+        if (!montoOriginalInput) { alert("No existe el campo montoOriginal en el HTML");
+             return; } 
+             
+            const montoOriginal = parseFloat(montoOriginalInput.value); 
+             if (isNaN(montoOriginal) || montoOriginal <= 0) { alert('Ingresa un monto original válido');
+                 montoOriginalInput.focus(); 
+                 return;
+                 } 
+                 // Validar que existan todos los inputs //
+                 if (!nombreInput || !fechaInput || !montoInput || !cuotasInput || !frecuenciaSelect) 
+                    { alert('Error en los elementos del formulario'); 
+                        return;
+                     } 
+                     const id = prestamoIdInput.value;
+                      const nombre = nombreInput.value.trim(); 
+                      const fechaOtorgamiento = fechaInput.value;
+                       const monto = parseFloat(montoInput.value);
+                        const cantidadCuotas = parseInt(cuotasInput.value); 
+                        const frecuenciaPago = frecuenciaSelect.value; 
+                        // Validar datos ingresados//
+                         if (!nombre) { alert('Ingresa el nombre del cliente'); 
+                            nombreInput.focus();
+                             return; } 
+                             if (!fechaOtorgamiento) { 
+                                alert('Selecciona la fecha de otorgamiento'); 
+                                fechaInput.focus(); 
+                                return; } 
+                                if (isNaN(monto) || monto <= 0) { 
+                                    alert('Ingresa un monto válido mayor a cero'); 
+                                    montoInput.focus(); 
+                                    return; } 
+                                    if (isNaN(cantidadCuotas) || cantidadCuotas <= 0) { 
+                                        alert('Ingresa una cantidad de cuotas válida mayor a cero');
+                                         cuotasInput.focus();
+                                          return; } 
+                                          const montoCuotaBase = parseFloat((monto / cantidadCuotas).toFixed(2));
+                                           const cuotas = generarFechasCuotas(fechaOtorgamiento, cantidadCuotas, frecuenciaPago); 
+                                           if (id) { 
+                                            // Editar préstamo existente//
+                                             const prestamoIndex = prestamos.findIndex(p => p.id === parseInt(id)); 
+                                             if (prestamoIndex !== -1) {
+                                                 prestamos[prestamoIndex] = { id: parseInt(id),
+                                                     usuario: prestamos[prestamoIndex].usuario, nombre, fechaOtorgamiento, monto, cantidadCuotas, frecuenciaPago, montoCuotaBase, montoOriginal, cuotas }; 
+                                                    } } 
+                                                    else { 
+                                                        // Agregar nuevo préstamo//
+                                                         prestamos.push({ id: Date.now(), usuario: localStorage.getItem("usuarioActivo"), nombre: nombre, fechaOtorgamiento: fechaOtorgamiento, monto: monto, cantidadCuotas: cantidadCuotas, frecuenciaPago: frecuenciaPago, montoCuotaBase: montoCuotaBase, montoOriginal: montoOriginal, cuotas: cuotas });
+                                                         } 
+                                                         
+                                                // Guardar y actualizar vista//
+                                            
+    localStorage.setItem('prestamos', JSON.stringify(prestamos)); 
+    guardarEnNube("prestamos", prestamos);
+     mostrarPrestamos(); 
+     cargarAniosDisponibles(); 
+     // Actualizar años después de guardar//
+      cerrarModal();
+     } 
+
+                   
+// Construir HTML completo de la tarjeta 
 function mostrarPrestamos() {
 
 const usuario = localStorage.getItem("usuarioActivo");
@@ -432,292 +383,249 @@ const prestamosUsuario = prestamos.filter(
         container.appendChild(card);
     });
 }
+ function toggleDetalle(id) {
+  const detalle = document.getElementById(`detalle-${id}`);
+  const cuotas = document.getElementById(`cuotas-${id}`);
 
-function toggleDetalle(id) {
-    const detalle = document.getElementById(`detalle-${id}`);
-    const cuotas = document.getElementById(`cuotas-${id}`);
+  if (!detalle || !cuotas) return;
 
-    if (!detalle || !cuotas) return;
+  const visible = detalle.style.display === "block";
 
-    const visible = detalle.style.display === "block";
-
-    detalle.style.display = visible ? "none" : "block";
-    cuotas.style.display = visible ? "none" : "block";
+  detalle.style.display = visible ? "none" : "block";
+  cuotas.style.display = visible ? "none" : "block";
 }
 
-
-
-// FUNCIONES DEL INFORME MENSUAL
-function toggleReportSection() {
-    if (!reportSection) return;
-    
-    if (reportSection.style.display === 'block') {
-        reportSection.style.display = 'none';
-    } else {
-        reportSection.style.display = 'block';
-        generarInformeMensual(); // Generar informe al abrir
-    }
-}
-
-function cargarAniosDisponibles() {
-    if (!yearSelector) return;
-
-    // Obtener todos los años con cuotas pagadas + año actual
-    const años = new Set();
-    const añoActual = new Date().getFullYear();
-    años.add(añoActual);
-
-    const usuario = localStorage.getItem("usuarioActivo");
-
-prestamos
- .filter(p => p.usuario === usuario)
- .forEach(p => {
-        p.cuotas.forEach(c => {
-            if (c.pagada && c.fechaPago) {
-                const año = new Date(c.fechaPago).getFullYear();
-                años.add(año);
-            }
-        });
-    });
-
-    // Limpiar selector y agregar opciones
-    yearSelector.innerHTML = '';
-    Array.from(años).sort((a, b) => b - a).forEach(año => {
-        const option = document.createElement('option');
-        option.value = año;
-        option.textContent = año;
-        yearSelector.appendChild(option);
-    });
-}
-
-function generarInformeMensual() {
-
-    const reportData = document.getElementById('reportData');
-    if (!reportData || !yearSelector) return;
-
-    const añoSeleccionado = parseInt(yearSelector.value);
-
-    const meses = [
-        'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-        'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-    ];
-
-    const datosInforme = meses.map(() => ({ 
-    cantidad: 0, 
-    monto: 0,
-    ganancia: 0
-}));
-
-
-    const usuario = localStorage.getItem("usuarioActivo");
-
-    prestamos
-        .filter(p => p.usuario === usuario)
-        .forEach(p => {
-            p.cuotas.forEach(c => {
-
-                if (c.pagada && c.fechaPago) {
-
-                    const partes = c.fechaPago.split("-");
-                    const añoPago = parseInt(partes[0]);
-                    const mesPago = parseInt(partes[1]) - 1;
-
-                    if (añoPago === añoSeleccionado) {
-
-                       const totalCuota = p.montoCuotaBase;
-
-// Cálculo de ganancia por cuota
-const costoRealCuota = p.montoOriginal / p.cuotas.length;
-const gananciaCuota = totalCuota - costoRealCuota;
-
-datosInforme[mesPago].cantidad++;
-datosInforme[mesPago].monto += totalCuota;
-datosInforme[mesPago].ganancia += gananciaCuota;
-
-                    }
-                }
-
-            });
-        });
-
-    // Render
-    reportData.innerHTML = "";
-
-    const hayDatos = datosInforme.some(m => m.cantidad > 0);
-    if (!hayDatos) {
-        reportData.innerHTML = "<div>No hay cuotas pagadas</div>";
+    // FUNCIONES DEL INFORME MENSUAL //
+     function toggleReportSection() { 
+     if (!reportSection) return;
+      if (reportSection.style.display === 'block') {
+         reportSection.style.display = 'none'; 
+        } else { reportSection.style.display = 'block'; 
+            generarInformeMensual();
+             // Generar informe al abrir 
+             } 
+            } 
+function cargarAniosDisponibles() { 
+    if (!yearSelector) 
         return;
-    }
+     // Obtener todos los años con cuotas pagadas + año actual 
+const años = new Set();
+ const añoActual = new Date().getFullYear(); 
+ años.add(añoActual);
+  const usuario = localStorage.getItem("usuarioActivo");
+   prestamos .filter(p => p.usuario === usuario) .forEach(p => { p.cuotas.forEach(c => { 
+    if (c.pagada && c.fechaPago) { const año = new Date(c.fechaPago).getFullYear();
+         años.add(año);
+         } }); }); 
+         // Limpiar selector y agregar opciones //
+         yearSelector.innerHTML = '';
+          Array.from(años).sort((a, b) => b - a).forEach(año => { 
+            const option = document.createElement('option'); 
+            option.value = año; option.textContent = año; yearSelector.appendChild(option);
+         }); } 
+         
+function generarInformeMensual() { 
+    const reportData = document.getElementById('reportData'); 
+    if (!reportData || !yearSelector) 
+        return;
+     const añoSeleccionado = parseInt(yearSelector.value); 
+     const meses = [ 'Enero','Febrero','Marzo','Abril','Mayo','Junio', 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre' ]; 
+     const datosInforme = meses.map(() => ({ cantidad: 0, monto: 0, ganancia: 0 })); 
+     const usuario = localStorage.getItem("usuarioActivo"); 
+     prestamos .filter(p => p.usuario === usuario) .forEach(p =>
+         { p.cuotas.forEach(c => { if (c.pagada && c.fechaPago)
+             { const partes = c.fechaPago.split("-");
+                 const añoPago = parseInt(partes[0]);
+                  const mesPago = parseInt(partes[1]) - 1;
+                   if (añoPago === añoSeleccionado) {
+                     const totalCuota = p.montoCuotaBase;
 
-    datosInforme.forEach((m, i) => {
-        if (m.cantidad > 0) {
-            reportData.innerHTML += `
-                <div class="report-month-card">
-                    <h4>${meses[i]}</h4>
-                    <p>Cuotas pagadas: ${m.cantidad}</p>
-                  <p>Monto total: $${m.monto.toFixed(2)}</p>
-<p>Ganancia: $${m.ganancia.toFixed(2)}</p>
+                      // Cálculo de ganancia por cuota //
+                       const costoRealCuota = p.montoOriginal / p.cuotas.length; 
+                       const gananciaCuota = totalCuota - costoRealCuota; datosInforme[mesPago].cantidad++; datosInforme[mesPago].monto += totalCuota; 
+                       datosInforme[mesPago].ganancia += gananciaCuota;
+                     } } }); });
+                      // Render//
+                        reportData.innerHTML = "";
+                         const hayDatos = datosInforme.some(m => m.cantidad > 0); 
+                         if (!hayDatos) {
+                             reportData.innerHTML = "<div>No hay cuotas pagadas</div>";
+                              return; 
+                            }
+                             datosInforme.forEach((m, i) => { if (m.cantidad > 0) { 
+                                reportData.innerHTML += `
+  <div class="report-month-card">
+    <h4>${meses[i]}</h4>
+    <p>Cuotas pagadas: ${m.cantidad}</p>
+    <p>Monto total: $${m.monto.toFixed(2)}</p>
+    <p>Ganancia: $${m.ganancia.toFixed(2)}</p>
+  </div>
+`; } });
+                     const totalCuotas = datosInforme.reduce((s,m)=>s+m.cantidad,0);
+                      const totalMonto = datosInforme.reduce((s,m)=>s+m.monto,0);
+                       const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
+                       reportData.innerHTML += `
+  <div class="report-month-card total">
+    <h4>TOTAL ${añoSeleccionado}</h4>
+    <p>Total cuotas: ${totalCuotas}</p>
+    <p>Total monto: $${totalMonto.toFixed(2)}</p>
+    <p>Total ganancia: $${totalGanancia.toFixed(2)}</p>
+  </div>
+`;
+ }
 
-                </div>
-            `;
-        }
-    });
+ function login(){ 
+  const userInput = document.getElementById("user");
+  const passInput = document.getElementById("pass"); 
 
-  const totalCuotas = datosInforme.reduce((s,m)=>s+m.cantidad,0);
-const totalMonto = datosInforme.reduce((s,m)=>s+m.monto,0);
-const totalGanancia = datosInforme.reduce((s,m)=>s+m.ganancia,0);
+  if(!userInput || !passInput){
+    alert("Inputs de login no encontrados"); 
+    return;
+  }
 
+  const u = userInput.value.trim();
+  const p = passInput.value.trim();
 
-    reportData.innerHTML += `
-        <div class="report-month-card total">
-            <h4>TOTAL ${añoSeleccionado}</h4>
-            <p>Total cuotas: ${totalCuotas}</p>
-            <p>Total monto: $${totalMonto.toFixed(2)}</p>
-<p>Total ganancia: $${totalGanancia.toFixed(2)}</p>
+  db.ref("usuarios").once("value", snap => {
+    const usuarios = snap.val() || {};
 
-        </div>
-    `;
-}
+    if(usuarios[u] && usuarios[u].pass === p){
 
-  function login(){
+      localStorage.setItem("usuarioActivo", u);
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-  const u = user.value.trim();
-  const p = pass.value.trim();
-
-  auth.signInWithEmailAndPassword(u + "@app.com", p)
-  .then((cred)=>{
-
-      const uid = cred.user.uid;
-
-      localStorage.setItem("usuarioActivo", uid);
-
-      // mostrar nombre real
-      db.ref("usuarios/" + uid).once("value", snap => {
-        const data = snap.val();
-        if(data?.username){
-          document.getElementById("usuarioMostrado").textContent = "👤 " + data.username;
-        }
-      });
-
-      loginScreen.style.display="none";
-      app.style.display="block";
-
-      leerDeNube("prestamos", data=>{
-        prestamos = data || [];
+      leerDeNube("prestamos", data => {
+        prestamos = Array.isArray(data) ? data : Object.values(data || {});
         localStorage.setItem("prestamos", JSON.stringify(prestamos));
         mostrarPrestamos();
       });
 
-  })
-  .catch(()=>{
-      msg.textContent="Usuario o contraseña incorrectos";
+      mostrarUsuarioActivo();
+      loginScreen.style.display = "none";
+      app.style.display = "block";
+
+    } else {
+      alert("Usuario o contraseña incorrectos");
+    }
   });
-
 }
 
+function abrirRegistro(){ 
+    modalRegistro.style.display="flex";
+ } 
+ 
+ function cerrarRegistro(){ 
+    modalRegistro.style.display="none";
+ } 
 
-
-
-
-function abrirRegistro(){
-   modalRegistro.style.display="flex";
-}
-
-function cerrarRegistro(){
-   modalRegistro.style.display="none";
-}
-
-function crearUsuario(){
-
+ function crearUsuario(){ 
   const u = newUser.value.trim();
   const p = newPassUser.value.trim();
+  const preg = preguntaUser.value.trim();
+  const resp = respuestaUser.value.trim();
 
-  if(!u || !p){
-    alert("Completa usuario y contraseña");
+  if(!u || !p || !preg || !resp){
+    alert("Completa todos los campos");
     return;
   }
 
-  if(p.length < 6){
-    alert("La contraseña debe tener al menos 6 caracteres");
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+  if(usuarios[u]){
+    alert("Ese usuario ya existe");
     return;
   }
 
-  auth.createUserWithEmailAndPassword(u + "@app.com", p)
-  .then((cred)=>{
+  usuarios[u] = {
+    pass: p,
+    pregunta: preg,
+    respuesta: resp.toLowerCase()
+  };
 
-      const uid = cred.user.uid;
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  guardarUsuariosEnNube(usuarios);
 
-      // 🔥 GUARDAR PERFIL EN LA DB
-      db.ref("usuarios/" + uid).set({
-        username: u,
-        creado: new Date().toISOString()
-      });
-
-      alert("Usuario creado correctamente");
-      cerrarRegistro();
-  })
-  .catch(error=>{
-      alert(error.message);
-  });
-
+  alert("Usuario creado");
+  cerrarRegistro();
 }
 
-
-
+    
 function guardarNuevaClave(){
 
-  const nuevaClave = newPass.value;
+  const usuario = localStorage.getItem("usuarioActivo");
 
-  if(nuevaClave.length < 6){
-    alert("La nueva contraseña debe tener al menos 6 caracteres");
+  const oldPassInput = document.getElementById("oldPass");
+  const newPassInput = document.getElementById("newPass");
+
+  if(!oldPassInput || !newPassInput){
+    alert("Inputs de cambio de clave no encontrados");
     return;
   }
 
-  const user = auth.currentUser;
+  const claveActual = oldPassInput.value.trim();
+  const nuevaClave = newPassInput.value.trim();
 
-  if(!user){
-    alert("No hay usuario autenticado");
+  if(!usuario){
+    alert("No hay usuario activo");
     return;
   }
 
-  user.updatePassword(nuevaClave)
-    .then(()=>{
-      alert("Contraseña actualizada correctamente");
-      cerrarCambio();
-    })
-    .catch(error=>{
-      alert(error.message);
-    });
+  if(!claveActual || !nuevaClave){
+    alert("Completa todos los campos");
+    return;
+  }
+
+  db.ref("usuarios").once("value", snap => {
+
+    const usuarios = snap.val() || {};
+
+    if(!usuarios[usuario]){
+      alert("Usuario no existe");
+      return;
+    }
+
+    if(usuarios[usuario].pass !== claveActual){
+      alert("Clave actual incorrecta");
+      return;
+    }
+
+    usuarios[usuario].pass = nuevaClave;
+
+    guardarUsuariosEnNube(usuarios);
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+    alert("✅ Contraseña actualizada correctamente");
+    cerrarCambio();
+  });
 }
 
 
 
+                 
 function recuperarClave(){
-
   const u = prompt("Usuario:");
   if(!u) return;
 
-  const email = u + "@app.com";
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
 
-  auth.sendPasswordResetEmail(email)
-    .then(()=>{
-      alert("Se envió un correo para recuperar la contraseña");
-    })
-    .catch(error=>{
-      alert(error.message);
-    });
+  if(!usuarios[u]){
+    alert("Usuario no existe");
+    return;
+  }
+
+  const resp = prompt(usuarios[u].pregunta);
+  if(resp && resp.toLowerCase() === usuarios[u].respuesta){
+    alert("Tu contraseña es: " + usuarios[u].pass);
+  } else {
+    alert("Respuesta incorrecta");
+  }
 }
 
-
-function logout(){
-   auth.signOut().then(()=>{
-      localStorage.removeItem("usuarioActivo");
-      location.reload();
-   });
-}
-
-
-
+         
+function logout(){ 
+    localStorage.removeItem("usuarioActivo"); 
+    location.reload(); 
+} 
 
 function exportarPrestamos(){
 
@@ -778,26 +686,22 @@ async function exportarPDF(){
  pdf.save(`prestamos_${usuario}.pdf`);
 }
 
-function abrirCambio(){
-   document.getElementById("modalClave").style.display="flex";
-}
-
-function cerrarCambio(){
-   document.getElementById("modalClave").style.display="none";
-}
-
-function mostrarUsuarioActivo(){
-  const user = auth.currentUser;
-  if(!user) return;
-
-  db.ref("usuarios/" + user.uid).once("value", snap=>{
-    const data = snap.val();
-    if(data?.username){
-      document.getElementById("usuarioMostrado").textContent = "👤 " + data.username;
-    }
-  });
-}
-
-
+function abrirCambio(){ 
+    document.getElementById("modalClave").style.display="flex";
+ } 
  
+ function cerrarCambio(){ 
+    document.getElementById("modalClave").style.display="none";
+ } 
+ 
+function mostrarUsuarioActivo(){ 
+    const u = localStorage.getItem("usuarioActivo"); 
+    if(u){ 
+        const span = document.getElementById("usuarioMostrado"); 
+        if(span){ 
+            span.textContent = "👤 " + u; 
+        }
+    }
+}
 
+    

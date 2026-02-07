@@ -1,171 +1,119 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Préstamos</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
-<div id="modalRegistro" class="modalClave">
-  <div class="login-box">
-    <h3>Nuevo Usuario</h3>
-    <input id="newUser" placeholder="Usuario">
-    <input id="newPassUser" type="password" placeholder="Contraseña">
-    <input id="preguntaUser" placeholder="Pregunta de seguridad">
-<input id="respuestaUser" placeholder="Respuesta de seguridad">
-
-    <button onclick="crearUsuario()">Crear</button>
-    <button onclick="cerrarRegistro()">Cancelar</button>
-  </div>
-</div>
-
-
-    <div class="fondo-animado"></div>
-
-<div id="loginScreen">
-    <div class="login-box">
-        <img src="imagenes/4.jpeg" class="logo">
-<h2 class="subtitulo-app">Portfolio Management</h2>
-
-
-        <input id="user" placeholder="Usuario">
-        <input id="pass" type="password" placeholder="Contraseña">
- 
-
-        <button onclick="login()">Ingresar</button>
-        <button onclick="abrirCambio()">Cambiar Clave</button>
-<button onclick="recuperarClave()">Recuperar Clave</button>
-<button onclick="abrirRegistro()">Crear Usuario</button>
-
-
-        <p id="msg"></p>
-    </div>
-</div>
-
-<div id="app">
-
-
-    
-<div class="header">
-    <div class="header-center">
-        <h1 class="titulo-app">Portfolio Management</h1>
-
-        <span id="usuarioMostrado"></span>
-
-        <div class="user-buttons">
-            <button id="btnCambiarClaveHeader" onclick="abrirCambio()">
-                Cambiar contraseña
-            </button>
-
-            <button id="logoutBtn" onclick="logout()">
-                Cerrar Sesión
-            </button>
-        </div>
-    </div>
-</div>
-
-
-
-<button id="exportPdfBtn" onclick="exportarPDF()">🧾 Exportar PDF</button>
-
-
-
-
-    <div id="container">
-        <p id="emptyMsg">No hay préstamos registrados</p>
-    </div>
-
-    <!-- Botón para informe mensual -->
-    <button id="reportBtn"></button>
-
-    <!-- Botón para agregar préstamos -->
-    <button id="addBtn">+</button>
-
-    <!-- MODAL DE REGISTRO/EDICIÓN -->
-    <div id="modal">
-        <div class="modal-content">
-            <h2 class="modal-title" id="modalTitulo">Agregar Préstamo</h2>
-            <input type="hidden" id="prestamoId">
-            <input type="text" id="nombre" placeholder="Nombre del cliente" required><br>
-            <input type="date" id="fechaOtorgamiento" required><br>
-<input type="number" id="montoOriginal" placeholder="Monto Original" min="1" step="0.01" required><br>
-            <input type="number" id="monto" placeholder="Monto $" min="1" step="0.01" required><br>
-            <input type="number" id="cuotas" placeholder="Cantidad de cuotas" min="1" required><br>
-            <label for="frecuenciaPago">Frecuencia de pago:</label>
-            <select id="frecuenciaPago" required>
-                <option value="mensual">Mensual</option>
-                <option value="semanal">Semanal</option>
-                <option value="quincenal">Quincenal</option>
-            </select><br>
-            <button class="btn-guardar" onclick="guardarPrestamo()">Guardar</button>
-            <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
-        </div>
-    </div>
-
-
-    <!-- SECCIÓN DE INFORME MENSUAL -->
-    <div id="reportSection">
-        <div class="report-content">
-            <h3 class="report-title">Informe Mensual de Cuotas Pagadas</h3>
+<!DOCTYPE
+ html> <html lang="es"> 
+    <head> <meta charset="UTF-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>Gestión de Préstamos</title>
+          <link rel="stylesheet" href="styles.css"> 
+        </head> 
+       
+        <body>
             
-            <div class="report-filter">
-                <label for="yearSelector">Seleccionar año:</label>
-                <select id="yearSelector" onchange="generarInformeMensual()"></select>
-                <button class="btn-cerrar-report" onclick="toggleReportSection()">Cerrar Informe</button>
-            </div>
+            <div id="modalRegistro" class="modalClave">
+             <div class="login-box"> <h3>Nuevo Usuario</h3> <input id="newUser" placeholder="Usuario"> 
+                <input id="newPassUser" type="password" placeholder="Contraseña">
+                 <input id="preguntaUser" placeholder="Pregunta de seguridad"> 
+                 <input id="respuestaUser" placeholder="Respuesta de seguridad"> 
+                 <button onclick="crearUsuario()">Crear</button>
+                  <button onclick="cerrarRegistro()">Cancelar</button>
+                 </div>
+                 </div> 
+                 <div class="fondo-animado"></div> 
+                 <div id="loginScreen"> 
+                    <div class="login-box"> 
+                        <img src="imagenes/4.jpeg" class="logo">
+                         <h2 class="subtitulo-app">Portfolio Management</h2> 
+                         <input id="user" placeholder="Usuario">
+                          <input id="pass" type="password" placeholder="Contraseña"> 
+                          <button onclick="login()">Ingresar</button> 
+                           <button onclick="recuperarClave()">Recuperar Clave</button>
+                            <button onclick="abrirRegistro()">Crear Usuario</button>
+                             <p id="msg"></p>
+                             </div> 
+                            </div> 
+                            <div id="app"> 
+                                <div class="header"> 
+                                    <div class="header-center"> 
+                                        <h1 class="titulo-app">Portfolio Management</h1> 
+                                        <span id="usuarioMostrado"></span> 
+                                        <div class="user-buttons"> <button id="btnCambiarClaveHeader" onclick="abrirCambio()"> Cambiar contraseña </button> 
+                                            <button id="logoutBtn" onclick="logout()"> Cerrar Sesión </button> 
+                                        </div> 
+                                    </div> 
+                                </div>
+                                 <button id="exportPdfBtn" onclick="exportarPDF()">🧾 Exportar PDF</button> 
+                                 <div id="container">
+                                     <p id="emptyMsg">No hay préstamos registrados</p> 
+                                    </div>
+                                     <!-- Botón para informe mensual --> 
+                                      <button id="reportBtn"></button> 
+                                      <!-- Botón para agregar préstamos --> 
+                                       <button id="addBtn">+</button>
+                                        <!-- MODAL DE REGISTRO/EDICIÓN --> 
+                                         <div id="modal"> <div class="modal-content">
+                                             <h2 class="modal-title" id="modalTitulo">Agregar Préstamo</h2> 
+                                             <input type="hidden" id="prestamoId">
+                                              <input type="text" id="nombre" placeholder="Nombre del cliente" required><br> 
+                                              <input type="date" id="fechaOtorgamiento" required><br> 
+                                              <input type="number" id="montoOriginal" placeholder="Monto Original" min="1" step="0.01" required><br>
+                                               <input type="number" id="monto" placeholder="Monto $" min="1" step="0.01" required><br> 
+                                               <input type="number" id="cuotas" placeholder="Cantidad de cuotas" min="1" required><br>
+                                                <label for="frecuenciaPago">Frecuencia de pago:</label>
+                                                 <select id="frecuenciaPago" required> 
+                                                    <option value="mensual">Mensual</option> 
+                                                    <option value="semanal">Semanal</option>
+                                                     <option value="quincenal">Quincenal</option> </select><br>
+                                                      <button class="btn-guardar" onclick="guardarPrestamo()">Guardar</button>
+                                                       <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button> 
+                                                    </div>
+                                                 </div> 
+                                                 
+                                                 <!-- SECCIÓN DE INFORME MENSUAL --> 
+                                                  
+                                                 <div id="reportSection"> 
+                                                    <div class="report-content">
+                                                         <h3 class="report-title">Informe Mensual de Cuotas Pagadas</h3> 
+                                                         <div class="report-filter"> 
+                                                            <label for="yearSelector">Seleccionar año:</label> 
+                                                            <select id="yearSelector" onchange="generarInformeMensual()"></select>
+                                                             <button class="btn-cerrar-report" onclick="toggleReportSection()">Cerrar Informe</button> 
+                                                            </div> 
+                                                            <div id="reportData" class="report-data">
 
-            <div id="reportData" class="report-data"></div>
-        </div>
-    </div>
-</div>
-</div>
+                                                            </div>
+                                                         </div>
+                                                         </div> 
+                                                        
+                                                        
 
-<div id="modalClave" class="modalClave">
+                                                     <div id="modalClave" class="modalClave" style="display:none;">
   <div class="login-box">
     <h3>Cambiar contraseña</h3>
-    
-    <input id="changeUser" placeholder="Usuario">
-<input id="oldPass" type="password" placeholder="Clave actual">
-<input id="newPass" type="password" placeholder="Nueva clave">
+
+    <input type="password" id="oldPass" placeholder="Clave actual">
+    <input type="password" id="newPass" placeholder="Nueva clave">
 
     <button onclick="guardarNuevaClave()">Guardar</button>
     <button onclick="cerrarCambio()">Cancelar</button>
   </div>
 </div>
 
-
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
-
-<script>
-const firebaseConfig = {
- apiKey: "AIzaSyA8ka9p-7_DmvRHIA5mJtxfq1Vf7w4cCVo",
-
-  authDomain: "maxprest-ab58c.firebaseapp.com",
-  databaseURL: "https://maxprest-ab58c-default-rtdb.firebaseio.com",
-  projectId: "maxprest-ab58c",
-  storageBucket: "maxprest-ab58c.appspot.com",
-  messagingSenderId: "909590173401",
-  appId: "1:909590173401:web:4a58158a7737187c1ad0c8"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.database();
-const auth = firebase.auth();
-</script>
-
-
-<script src="script.js"></script>
-
-
-
-</body>
-</html>
+                                                     
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
+              <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+              <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+                                                          
+                   <script>
+                 const firebaseConfig = { 
+                   apiKey: "AQUI_APIKEY",
+                      authDomain: "maxprest-ab58c.firebaseapp.com", 
+                       databaseURL: "https://maxprest-ab58c-default-rtdb.firebaseio.com",
+                         projectId: "maxprest-ab58c", storageBucket: "maxprest-ab58c.appspot.com",
+                     messagingSenderId: "909590173401", 
+                 appId: "1:909590173401:web:4a58158a7737187c1ad0c8" }; 
+                firebase.initializeApp(firebaseConfig);
+               const db = firebase.database(); 
+               </script>
+                                                              
+          <script src="script.js"></script> 
+                  </body>  
+                    </html>
