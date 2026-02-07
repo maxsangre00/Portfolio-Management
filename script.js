@@ -1,13 +1,6 @@
 // 🔥 Firebase helpers
 
-function guardarUsuariosEnNube(datos){
-   db.ref("usuarios").set(datos);
-}
-function leerUsuariosDeNube(callback){
-   db.ref("usuarios").once("value", snap=>{
-      callback(snap.val());
-   });
-}
+
 
 function guardarEnNube(clave, datos){
    const usuario = localStorage.getItem("usuarioActivo");
@@ -28,50 +21,36 @@ function leerDeNube(clave, callback){
 
 
 
-document.addEventListener("DOMContentLoaded",()=>{
-leerUsuariosDeNube(data => {
-
-   if(data){
-      const arrayUsuarios = Object.values(data);
-      localStorage.setItem("usuarios", JSON.stringify(arrayUsuarios));
-   }else{
-      const vacio = [];
-      localStorage.setItem("usuarios", JSON.stringify(vacio));
-      guardarUsuariosEnNube(vacio);
-   }
-
-});
 
 
-   // Estado inicial
-   app.style.display = "none";
-   loginScreen.style.display = "flex";
 
-   // Si hay usuario activo
-   if(localStorage.getItem("usuarioActivo")){
+ auth.onAuthStateChanged(user => {
 
-      loginScreen.style.display = "none";
-      app.style.display = "block";
+  if(user){
+    localStorage.setItem("usuarioActivo", user.uid);
 
-      mostrarUsuarioActivo();
+    loginScreen.style.display = "none";
+    app.style.display = "block";
 
-      leerDeNube("prestamos", data=>{
-         if(data){
-            prestamos = data;
-            localStorage.setItem("prestamos", JSON.stringify(data));
-            mostrarPrestamos();
-         }
-      });
-   }
+    mostrarUsuarioActivo();
+
+    leerDeNube("prestamos", data=>{
+      prestamos = data || [];
+      localStorage.setItem("prestamos", JSON.stringify(prestamos));
+      mostrarPrestamos();
+    });
+
+  }else{
+    localStorage.removeItem("usuarioActivo");
+
+    app.style.display = "none";
+    loginScreen.style.display = "flex";
+  }
 
 });
 
 
-
-
-
-
-
+  
 // VARIABLES GLOBALES
 let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
 const addBtn = document.getElementById('addBtn');
@@ -687,72 +666,48 @@ function crearUsuario(){
 
 function guardarNuevaClave(){
 
-   const usuario = changeUser.value.trim();
-   const claveActual = oldPass.value;
-   const nuevaClave = newPass.value;
+  const nuevaClave = newPass.value;
 
-   if(!usuario || !claveActual || !nuevaClave){
-      alert("Completa todos los campos");
-      return;
-   }
+  if(nuevaClave.length < 6){
+    alert("La nueva contraseña debe tener al menos 6 caracteres");
+    return;
+  }
 
-   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  const user = auth.currentUser;
 
-   const userObj = usuarios.find(u => u.user === usuario);
+  if(!user){
+    alert("No hay usuario autenticado");
+    return;
+  }
 
-   if(!userObj){
-      alert("Usuario no existe");
-      return;
-   }
-
-   if(userObj.pass !== claveActual){
-      alert("Clave actual incorrecta");
-      return;
-   }
-
-   userObj.pass = nuevaClave;
-   localStorage.setItem("usuarios", JSON.stringify(usuarios));
-   guardarUsuariosEnNube(usuarios);
-
-
-
-   alert("Contraseña actualizada correctamente");
-
-   changeUser.value="";
-   oldPass.value="";
-   newPass.value="";
-
-   cerrarCambio();
+  user.updatePassword(nuevaClave)
+    .then(()=>{
+      alert("Contraseña actualizada correctamente");
+      cerrarCambio();
+    })
+    .catch(error=>{
+      alert(error.message);
+    });
 }
+
 
 
 function recuperarClave(){
 
-   const u = prompt("Usuario:");
-   if(!u) return;
+  const u = prompt("Usuario:");
+  if(!u) return;
 
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  const email = u + "@app.com";
 
-   const userObj = usuarios.find(x => x.user === u);
-
-   if(!userObj){
-      alert("Usuario no existe");
-      return;
-   }
-
-   const resp = prompt(userObj.pregunta);
-
-   if(!resp){
-      alert("Operación cancelada");
-      return;
-   }
-
-   if(resp.toLowerCase() === userObj.respuesta){
-      alert("Tu contraseña es: " + userObj.pass);
-   }else{
-      alert("Respuesta incorrecta");
-   }
+  auth.sendPasswordResetEmail(email)
+    .then(()=>{
+      alert("Se envió un correo para recuperar la contraseña");
+    })
+    .catch(error=>{
+      alert(error.message);
+    });
 }
+
 
 function logout(){
    auth.signOut().then(()=>{
@@ -832,15 +787,17 @@ function cerrarCambio(){
 }
 
 function mostrarUsuarioActivo(){
-   const u = localStorage.getItem("usuarioActivo");
-   if(u){
-      const span = document.getElementById("usuarioMostrado");
-      if(span){
-         span.textContent = "👤 " + u;
-      }
-   }
+  const user = auth.currentUser;
+  if(!user) return;
+
+  db.ref("usuarios/" + user.uid).once("value", snap=>{
+    const data = snap.val();
+    if(data?.username){
+      document.getElementById("usuarioMostrado").textContent = "👤 " + data.username;
+    }
+  });
 }
 
 
-
+ 
 
