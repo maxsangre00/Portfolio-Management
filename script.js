@@ -1,31 +1,60 @@
+// 🔐 Login anónimo Firebase (SIEMPRE ARRIBA)
+auth.signInAnonymously()
+  .catch(err => console.error("Auth error:", err));
 
- function guardarUsuariosEnNube(usuarios){
-   db.ref("usuarios").set(usuarios);
+let UID_ACTUAL = null;
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    UID_ACTUAL = user.uid;
+    localStorage.setItem("uid", UID_ACTUAL);
+    console.log("Firebase autenticado:", UID_ACTUAL);
+  } else {
+    UID_ACTUAL = null;
+    localStorage.removeItem("uid");
+  }
+});
+
+
+function guardarUsuariosEnNube(usuarios){
+  const uid = localStorage.getItem("uid");
+  if(!uid) return;
+
+  db.ref(`usuarios/${uid}`).set(usuarios);
 }
+
+
+
 
 
 function leerUsuariosDeNube(callback){
-         db.ref("usuarios").once("value", 
-            snap=>{ callback(snap.val()); 
-
-            }); } 
-            
-function guardarEnNube(clave, datos){ 
-  const usuario = localStorage.getItem("usuarioActivo"); 
-  if(!usuario) 
-    return;
-
-  db.ref(`${clave}/${usuario}`).set(datos);
+  const uid = localStorage.getItem("uid");
+  if(!uid) return;
+  db.ref(`usuarios/${uid}`).once("value", snap=>{
+    callback(snap.val());
+  });
 }
 
-function leerDeNube(clave, callback){ 
-    const usuario = localStorage.getItem("usuarioActivo"); 
-    if(!usuario)
-         return;
-     db.ref(`${clave}/${usuario}`).once("value", 
-        snap=>{ callback(snap.val()); 
+            
+function guardarEnNube(clave, datos){
+  const uid = localStorage.getItem("uid");
+  const usuario = localStorage.getItem("usuarioActivo");
+  if(!uid || !usuario) return;
 
-        }); } 
+  db.ref(`${clave}/${uid}/${usuario}`).set(datos);
+}
+
+
+function leerDeNube(clave, callback){
+  const uid = localStorage.getItem("uid");
+  const usuario = localStorage.getItem("usuarioActivo");
+  if(!uid || !usuario) return;
+
+  db.ref(`${clave}/${uid}/${usuario}`).once("value", snap=>{
+    callback(snap.val());
+  });
+}
+
 
         const loginScreen = document.getElementById("loginScreen");
 const app = document.getElementById("app");
@@ -478,21 +507,22 @@ function generarInformeMensual() {
   const userInput = document.getElementById("user");
   const passInput = document.getElementById("pass"); 
 
-  if(!userInput || !passInput){
-    alert("Inputs de login no encontrados"); 
-    return;
-  }
-
   const u = userInput.value.trim();
   const p = passInput.value.trim();
 
-  db.ref("usuarios").once("value", snap => {
+  const uid = localStorage.getItem("uid");
+  if(!uid){
+    alert("Firebase no autenticó aún");
+    return;
+  }
+
+  db.ref(`usuarios/${uid}`).once("value", snap => {
+
     const usuarios = snap.val() || {};
 
     if(usuarios[u] && usuarios[u].pass === p){
 
       localStorage.setItem("usuarioActivo", u);
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
       leerDeNube("prestamos", data => {
         prestamos = Array.isArray(data) ? data : Object.values(data || {});
@@ -509,6 +539,7 @@ function generarInformeMensual() {
     }
   });
 }
+
 
 function abrirRegistro(){ 
     modalRegistro.style.display="flex";
@@ -553,29 +584,25 @@ function abrirRegistro(){
 function guardarNuevaClave(){
 
   const usuario = localStorage.getItem("usuarioActivo");
+  const uid = localStorage.getItem("uid");
 
   const oldPassInput = document.getElementById("oldPass");
   const newPassInput = document.getElementById("newPass");
 
-  if(!oldPassInput || !newPassInput){
-    alert("Inputs de cambio de clave no encontrados");
+  if(!usuario || !uid){
+    alert("No hay sesión activa");
     return;
   }
 
   const claveActual = oldPassInput.value.trim();
   const nuevaClave = newPassInput.value.trim();
 
-  if(!usuario){
-    alert("No hay usuario activo");
-    return;
-  }
-
   if(!claveActual || !nuevaClave){
     alert("Completa todos los campos");
     return;
   }
 
-  db.ref("usuarios").once("value", snap => {
+  db.ref(`usuarios/${uid}`).once("value", snap => {
 
     const usuarios = snap.val() || {};
 
@@ -598,6 +625,7 @@ function guardarNuevaClave(){
     cerrarCambio();
   });
 }
+
 
 
 
