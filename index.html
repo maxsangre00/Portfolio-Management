@@ -8,21 +8,25 @@
        
         <body>
             
-            <div id="modalRegistro" class="modalClave">
-             <div class="login-box"> <h3>Nuevo Usuario</h3> <input id="newUser" placeholder="Usuario"> 
-                <input id="newPassUser" type="password" placeholder="Contraseña">
-                 <input id="preguntaUser" placeholder="Pregunta de seguridad"> 
-                 <input id="respuestaUser" placeholder="Respuesta de seguridad"> 
-                 <button onclick="crearUsuario()">Crear</button>
-                  <button onclick="cerrarRegistro()">Cancelar</button>
-                 </div>
-                 </div> 
+          <div id="modalRegistro" class="modalClave">
+  <div class="login-box">
+    <h3>Nuevo Usuario</h3>
+
+    <input id="emailRegistro" type="email" placeholder="Correo electrónico" required>
+    <input id="passRegistro" type="password" placeholder="Contraseña" required>
+
+    <button onclick="crearUsuario()">Crear</button>
+    <button onclick="cerrarRegistro()">Cancelar</button>
+  </div>
+</div>
+
                  <div class="fondo-animado"></div> 
                  <div id="loginScreen"> 
                     <div class="login-box"> 
                         <img src="imagenes/4.jpeg" class="logo">
                          <h2 class="subtitulo-app">Portfolio Management</h2> 
-                         <input id="user" placeholder="Usuario">
+                        <input id="emailLogin" type="email" placeholder="Correo electrónico" required>
+
                           <input id="pass" type="password" placeholder="Contraseña"> 
                           <button onclick="login()">Ingresar</button> 
                            <button onclick="recuperarClave()">Recuperar Clave</button>
@@ -35,6 +39,8 @@
                                     <div class="header-center"> 
                                         <h1 class="titulo-app">Portfolio Management</h1> 
                                         <span id="usuarioMostrado"></span> 
+                                        <span id="estadoSesion"></span>
+
                                         <div class="user-buttons"> <button id="btnCambiarClaveHeader" onclick="abrirCambio()"> Cambiar contraseña </button> 
                                             <button id="logoutBtn" onclick="logout()"> Cerrar Sesión </button> 
                                         </div> 
