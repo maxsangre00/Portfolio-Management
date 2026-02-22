@@ -46,7 +46,7 @@
                                         </div> 
                                     </div> 
                                 </div>
-                                 <button id="exportPdfBtn" onclick="exportarPDF()">🧾 Exportar PDF</button> 
+                             <button id="exportPdfBtn" onclick="exportarPDF()">🧾 Exportar PDF</button>    
                                  <div id="container">
                                      <p id="emptyMsg">No hay préstamos registrados</p> 
                                     </div>
@@ -59,6 +59,8 @@
                                              <h2 class="modal-title" id="modalTitulo">Agregar Préstamo</h2> 
                                              <input type="hidden" id="prestamoId">
                                               <input type="text" id="nombre" placeholder="Nombre del cliente" required><br> 
+                                              <input type="text" id="telefono" placeholder="Teléfono del cliente"><br>
+                                              <small id="telefonoError" class="mensaje-validacion"></small>
                                               <input type="date" id="fechaOtorgamiento" required><br> 
                                               <input type="number" id="montoOriginal" placeholder="Monto Original" min="1" step="0.01" required><br>
                                                <input type="number" id="monto" placeholder="Monto $" min="1" step="0.01" required><br> 
