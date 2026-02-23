@@ -562,14 +562,17 @@ const telefonoWhatsApp = telefonoLimpio ? `549${telefonoLimpio}` : '';
    📞 ${p.telefono || 'Sin teléfono'}
 
    ${telefonoValido ? `
-      <a href="tel:${telefonoLimpio}" class="btn-llamar">
-         📲
-      </a>
+     <a href="tel:${telefonoLimpio}" class="btn-llamar">
+   <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png"
+        alt="Llamar">
+</a>
 
       <a href="https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent("Hola, te contacto por el préstamo pendiente.")}" 
          target="_blank" 
          class="btn-whatsapp">
-         💬
+         <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" 
+     width="22" 
+     alt="WhatsApp">
       </a>
    ` : `
       <span class="mensaje-error">⚠ Número inválido</span>
@@ -652,11 +655,6 @@ if (c.pagada) {
         container.appendChild(card);
     });
 }
-
-
-
-
-
 
  function toggleDetalle(id) {
   const detalle = document.getElementById(`detalle-${id}`);
@@ -1118,15 +1116,6 @@ function abrirCambio(){
  function cerrarCambio(){ 
     document.getElementById("modalClave").style.display="none";
  } 
-
-
-
-
-
-
-
-
-
 
  async function exportarRecibo(prestamoId, cuotaNumero){
 

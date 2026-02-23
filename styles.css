@@ -805,36 +805,55 @@ button {
 
 .btn-llamar {
     display: inline-block;
-    margin-left: 6px;
-    padding: 4px 8px;
-    background: #00c853;
-    color: white;
-    border-radius: 6px;
+    margin-left: 16px;
+    padding: 0;              /* sin espacio */
+    background: none;        /* sin fondo */
+    border-radius: 0;
     text-decoration: none;
-    font-size: 12px;
+    position: relative;
+    top: 5px;
     transition: 0.2s;
 }
 
-.btn-llamar:hover {
-    background: #00e676;
-    transform: scale(1.05);
+.btn-llamar img {
+    width: 35px;
+    height: 35px;
+    display: block;
 }
+
+.btn-llamar:hover img {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 4px #00c853);
+}
+
+
+
 
 .btn-whatsapp {
     display: inline-block;
-    margin-left: 6px;
-    padding: 4px 8px;
-    background: #25D366;
-    color: white;
-    border-radius: 6px;
+    margin-left: 15px;
+    padding: 0;              /* ❌ sin espacio interno */
+    background: none;        /* ❌ sin fondo */
+    border-radius: 0;        /* ❌ sin borde redondeado */
     text-decoration: none;
-    font-size: 12px;
+    position: relative;
+    top: 5px;
     transition: 0.2s;
 }
 
-.btn-whatsapp:hover {
-    background: #2eea75;
-    transform: scale(1.05);
+.btn-whatsapp img {
+    display: block;
+    width: 35px;
+    height: 35px;
+}
+
+.btn-whatsapp:hover img {
+    transform: scale(1.15);  /* 🔥 efecto elegante */
+}
+
+.btn-whatsapp:hover img {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 4px #25D366);
 }
 
 
