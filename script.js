@@ -476,6 +476,28 @@ function mostrarPrestamos() {
     const uid = getUID();   // 🔥 usar UID real
     if (!uid) return;
 
+// 🔢 CONTADOR ACTIVOS / FINALIZADOS
+let activos = 0;
+let finalizados = 0;
+
+prestamos.forEach(p => {
+    const estaFinalizado = p.cuotas.every(c => c.pagada);
+    if (estaFinalizado) {
+        finalizados++;
+    } else {
+        activos++;
+    }
+});
+
+const contadorDiv = document.getElementById("contadorPrestamos");
+if (contadorDiv) {
+    contadorDiv.innerHTML = `
+        <span class="contador-activos">🔵 ${activos} Activos</span>
+        |
+        <span class="contador-finalizados">🟢 ${finalizados} Finalizados</span>
+    `;
+}
+
     if (emptyMsg) {
         emptyMsg.style.display = prestamos.length === 0 ? 'block' : 'none';
     }
@@ -483,9 +505,20 @@ function mostrarPrestamos() {
     const container = document.getElementById('container');
     if (!container) return;
 
-    container.innerHTML = '';
+   container.innerHTML = '';
 
-    prestamos.forEach(p => {
+// 🔥 ORDENAR: ACTIVOS ARRIBA - FINALIZADOS ABAJO
+const prestamosOrdenados = [...prestamos].sort((a, b) => {
+
+    const aFinalizado = a.cuotas.every(c => c.pagada);
+    const bFinalizado = b.cuotas.every(c => c.pagada);
+
+    if (aFinalizado === bFinalizado) return 0;
+
+    return aFinalizado ? 1 : -1;
+});
+
+prestamosOrdenados.forEach(p => {
 
 // 🔥 LIMPIEZA PROFESIONAL DE CELULAR
 
@@ -507,11 +540,13 @@ if (telefonoLimpio.startsWith('54')) {
 const telefonoValido = telefonoLimpio.length === 10;
 
 const telefonoWhatsApp = telefonoLimpio ? `549${telefonoLimpio}` : '';
+
         const estaFinalizado = p.cuotas.every(c => c.pagada);
         const estadoClase = estaFinalizado ? 'estado-finalizado' : 'estado-activo';
         const estadoTexto = estaFinalizado ? 'FINALIZADO' : 'ACTIVO';
 
         const card = document.createElement('div');
+
         card.className = 'card';
 
         card.innerHTML = `
@@ -1001,12 +1036,19 @@ async function exportarPDF(){
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
-  const datos = prestamos;
-
+// 🔥 SOLO PRESTAMOS ACTIVOS (NO FINALIZADOS)
+const datos = prestamos.filter(p => 
+  !p.cuotas.every(c => c.pagada)
+);
   if(!datos || datos.length === 0){
     alert("No hay préstamos");
     return;
   }
+
+  if(!datos || datos.length === 0){
+  alert("No hay préstamos activos para exportar");
+  return;
+}
 
   let y = 10;
 

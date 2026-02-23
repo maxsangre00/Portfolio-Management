@@ -441,7 +441,7 @@ button {
 }
 
 .btn-editar{
-    background: linear-gradient(135deg, #bc8732, #140f0b);
+    background: linear-gradient(135deg, #e249db, #140f0b);
     border: none;
     padding: 10px 22px;
     border-radius: 25px;
@@ -881,4 +881,25 @@ button {
 
 .mensaje-validacion.invalido {
     color: #ff3b3b;
+}
+
+
+
+.contador-prestamos {
+    margin: 15px 0;
+    padding: 12px;
+    background: #1b1b1b;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.contador-activos {
+    color: #37949c;
+}
+
+.contador-finalizados {
+    color: #207629;
 }
