@@ -46,8 +46,7 @@
                                         </div> 
                                     </div> 
                                 </div>
-                             <button id="exportPdfBtn" onclick="exportarPDF()">🧾 Exportar PDF</button>   
-
+<button id="exportPdfBtn" onclick="abrirModalExportar()">🧾 Exportar PDF</button>
                              <div id="contadorPrestamos" class="contador-prestamos"></div>
 
                                  <div id="container">
@@ -131,7 +130,19 @@
                 const auth = firebase.auth();
   const db = firebase.database();
                </script>
-                                                              
+                                          
+                       <div id="modalExportar" class="modalExportar">
+  <div class="modalExportar-box">
+    <h3>📄 Exportar Préstamos</h3>
+
+    <button onclick="exportarPDF('activos')">🔵 Exportar Activos</button>
+    <button onclick="exportarPDF('finalizados')">🟢 Exportar Finalizados</button>
+    <button onclick="exportarPDF('todos')">📊 Exportar Todo</button>
+
+    <button class="btn-cerrar-exportar" onclick="cerrarModalExportar()">Cancelar</button>
+  </div>
+</div>                   
+
           <script src="script.js"></script> 
                   </body>  
                     </html>

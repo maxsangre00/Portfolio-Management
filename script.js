@@ -1029,84 +1029,155 @@ function exportarPrestamos(){
 
 
 
-async function exportarPDF(){
+async function exportarPDF(tipo = "activos"){
+
+  cerrarModalExportar();
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
-// 🔥 SOLO PRESTAMOS ACTIVOS (NO FINALIZADOS)
-const datos = prestamos.filter(p => 
-  !p.cuotas.every(c => c.pagada)
-);
-  if(!datos || datos.length === 0){
-    alert("No hay préstamos");
-    return;
+  // 🎨 COLORES INSTITUCIONALES
+  const COLOR_PRINCIPAL = [30, 58, 138];   // Azul #1E3A8A
+  const COLOR_SECUNDARIO = [59, 130, 246]; // Azul claro #3B82F6
+  const COLOR_TEXTO = [55, 65, 81];        // Gris oscuro
+
+  let datos = [];
+
+  if(tipo === "activos"){
+    datos = prestamos.filter(p => !p.cuotas.every(c => c.pagada));
+  }
+
+  if(tipo === "finalizados"){
+    datos = prestamos.filter(p => p.cuotas.every(c => c.pagada));
+  }
+
+  if(tipo === "todos"){
+    datos = prestamos;
   }
 
   if(!datos || datos.length === 0){
-  alert("No hay préstamos activos para exportar");
-  return;
-}
+    alert("No hay préstamos para exportar");
+    return;
+  }
 
-  let y = 10;
+  let y = 20;
 
-  pdf.setFontSize(14);
-  pdf.text("REPORTE DE PRÉSTAMOS", 10, y);
-  y += 10;
+  // 🔵 ENCABEZADO CON FONDO
+  pdf.setFillColor(...COLOR_PRINCIPAL);
+  pdf.rect(0, 0, 210, 30, "F");
+
+  pdf.setTextColor(255,255,255);
+  pdf.setFontSize(18);
+  pdf.setFont("helvetica","bold");
+  pdf.text("REPORTE FINANCIERO DE PRÉSTAMOS", 105, 18, {align:"center"});y+=20
+
+  pdf.setTextColor(...COLOR_TEXTO);
 
   datos.forEach((p, i) => {
 
-    if(y > 270){
+    if(y > 260){
       pdf.addPage();
-      y = 10;
+      y = 20;
     }
 
-    pdf.setFontSize(12);
-    pdf.text(`${i+1}) Cliente: ${p.nombre}`, 10, y); y+=6;
-    pdf.text(`Fecha de otorgamiento: ${p.fechaOtorgamiento}`, 10, y); y+=6;
-    pdf.text(`Monto total: $${p.monto.toFixed(2)}`, 10, y); y+=6;
-   // pdf.text(`Monto original: $${(p.montoOriginal || 0).toFixed(2)}`, 10, y); y+=6;   *//
-    pdf.text(`Cantidad de cuotas: ${p.cantidadCuotas}`, 10, y); y+=6;
-    pdf.text(`Frecuencia: ${p.frecuenciaPago}`, 10, y); y+=8;
+    const estado = p.cuotas.every(c => c.pagada) 
+      ? "FINALIZADO" 
+      : "ACTIVO";
 
-    pdf.setFontSize(11);
-    pdf.text("Detalle de cuotas:", 10, y); 
-    y += 6;
+    // 🔹 Título préstamo
+    pdf.setFontSize(13);
+    pdf.setFont("helvetica","bold");
+    pdf.setTextColor(...COLOR_PRINCIPAL);
+    pdf.text(`${i+1}) ${p.nombre} - ${estado}`, 10, y);
+    y+=8;
+
+    pdf.setTextColor(...COLOR_TEXTO);
+    pdf.setFont("helvetica","normal");
+
+    pdf.text(`Fecha: ${p.fechaOtorgamiento}`, 10, y); y+=6;
+    pdf.text(`Monto total: $${p.monto.toFixed(2)}`, 10, y); y+=6;
+    pdf.text(`Cuotas: ${p.cantidadCuotas}`, 10, y); y+=6;
+    pdf.text(`Monto cuota base: $${p.montoCuotaBase.toFixed(2)}`, 10, y); y+=8;
+
+    // 🔹 Subtítulo detalle
+    pdf.setFont("helvetica","bold");
+    pdf.setTextColor(...COLOR_SECUNDARIO);
+    pdf.text("Detalle de Cuotas:", 10, y);
+    y+=8;
+
+    pdf.setTextColor(...COLOR_TEXTO);
+    pdf.setFont("helvetica","normal");
 
     p.cuotas.forEach(c => {
 
       if(y > 270){
         pdf.addPage();
-        y = 10;
+        y = 20;
       }
 
-      const interes = c.interesPagado || 0;
+      const interes = c.pagada
+        ? (c.interesPagado || 0)
+        : calcularInteresAtraso(c, p.montoCuotaBase);
+
       const total = p.montoCuotaBase + interes;
+      const estadoCuota = c.pagada ? "PAGADA" : "PENDIENTE";
 
-      pdf.text(`Cuota #${c.numero}`, 12, y); y+=5;
-      pdf.text(`Vencimiento: ${c.fechaVencimiento}`, 14, y); y+=5;
+      pdf.text(
+        `Cuota ${c.numero} | Vence: ${c.fechaVencimiento} | ${estadoCuota}`,
+        10, y
+      );
+      y+=6;
 
-      if(c.pagada){
-        pdf.text(`Estado: PAGADA`, 14, y); y+=5;
-        pdf.text(`Fecha de pago: ${c.fechaPago}`, 14, y); y+=5;
-        pdf.text(`Monto base: $${p.montoCuotaBase.toFixed(2)}`, 14, y); y+=5;
-
-        if(interes > 0){
-          pdf.text(`Interés por atraso: $${interes.toFixed(2)}`, 14, y); y+=5;
-        }
-
-        pdf.text(`Total pagado: $${total.toFixed(2)}`, 14, y); y+=6;
-
-      } else {
-        pdf.text(`Estado: PENDIENTE`, 14, y); y+=6;
-      }
+      pdf.text(
+        `Base: $${p.montoCuotaBase.toFixed(2)} | Interés: $${interes.toFixed(2)} | Total: $${total.toFixed(2)}`,
+        15, y
+      );
+      y+=8;
 
     });
 
-    y += 4;
+    // 🔹 Línea separadora institucional
+    pdf.setDrawColor(...COLOR_SECUNDARIO);
+    pdf.line(10, y, 200, y);
+    y+=10;
+
   });
 
-  pdf.save("prestamos_detallado.pdf");
+  pdf.save(`reporte_${tipo}.pdf`);
+}
+
+function mostrarOpcionesExportar(){
+
+  const opcion = prompt(
+`Selecciona opción:
+
+1 - Exportar Activos
+2 - Exportar Finalizados
+3 - Exportar Todo`
+  );
+
+  if(!opcion) return;
+
+  if(opcion === "1"){
+    exportarPDF("activos");
+  }
+  else if(opcion === "2"){
+    exportarPDF("finalizados");
+  }
+  else if(opcion === "3"){
+    exportarPDF("todos");
+  }
+  else{
+    alert("Opción inválida");
+  }
+}
+
+function abrirModalExportar(){
+  document.getElementById("modalExportar").style.display = "flex";
+}
+
+function cerrarModalExportar(){
+  document.getElementById("modalExportar").style.display = "none";
 }
 
 function abrirCambio(){ 
