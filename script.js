@@ -515,8 +515,11 @@ const telefonoWhatsApp = telefonoLimpio ? `549${telefonoLimpio}` : '';
         card.className = 'card';
 
         card.innerHTML = `
-           <h3 class="cliente-nombre" onclick="toggleDetalle(${p.id})">
+        <h3 class="cliente-nombre" onclick="toggleDetalle(${p.id})">
    ▶ ${p.nombre}
+   <span class="estado-prestamo ${estadoClase}">
+      ${estadoTexto}
+   </span>
 </h3>
 
 
